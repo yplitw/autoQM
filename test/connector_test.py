@@ -21,8 +21,8 @@ class TestThermoCentralDatabaseInterface(unittest.TestCase):
 
     def testConnectSuccess(self):
 
-        host, port, username, password = autoqm.utils.get_TCD_authentication_info()
+        auth_info = autoqm.utils.get_TCD_authentication_info()
 
-        tcdi = autoqm.connector.ThermoCentralDatabaseInterface(host, port, username, password)
+        tcdi = autoqm.connector.ThermoCentralDatabaseInterface(*auth_info)
 
         self.assertTrue(tcdi.client is not None)
