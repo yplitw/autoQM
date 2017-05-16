@@ -1,0 +1,7 @@
+name: autoqm_env
+channels:
+  - defaults
+  - rmg
+dependencies:
+  - nose
+  - pymongo
