@@ -16,7 +16,7 @@ def get_TCD_authentication_info(cfg_path='default'):
 		host = os.environ['TCD_HOST']
 		port = int(os.environ['TCD_PORT'])
 		username = os.environ['TCD_USER']
-		password = os.environ['TCD_PW2']
+		password = os.environ['TCD_PW']
 
 		return host, port, username, password
 	except KeyError:
