@@ -21,5 +21,14 @@ class TestAuthentication(unittest.TestCase):
 		self.assertEqual(config['ThermoCentralDatabase']['TCD_PORT'], '123')
 		self.assertEqual(config['ThermoCentralDatabase']['TCD_USER'], 'me')
 		self.assertEqual(config['ThermoCentralDatabase']['TCD_PW'], 'secret')
+
+	def test_get_TCD_authentication_info(self):
+
+		host, port, username, password = autoqm.utils.get_TCD_authentication_info(self.cfg_path)
+
+		self.assertEqual(host, 'my_host')
+		self.assertEqual(port, 123)
+		self.assertEqual(username, 'me')
+		self.assertEqual(password, 'secret')
 	
 		
