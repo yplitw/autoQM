@@ -9,3 +9,7 @@
 
 # Compiled Python modules
 *.pyc
+*.ipynb_checkpoints
+
+# Data folder
+jobs/*
