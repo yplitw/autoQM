@@ -8,6 +8,12 @@ from rmgpy.molecule import Molecule
 import autoqm.utils
 import autoqm.connector
 
+# connect to central database registration table
+auth_info = autoqm.utils.get_TCD_authentication_info()
+tcdi = autoqm.connector.ThermoCentralDatabaseInterface(*auth_info)
+tcd =  getattr(tcdi.client, 'thermoCentralDB')
+saturated_ringcore_table = getattr(tcd, 'saturated_ringcore_table')
+
 def select_run_target():
 	"""
 	This method is to inform job creator which targets 
@@ -15,13 +21,6 @@ def select_run_target():
 
 	Returns a list of targets with necessary meta data
 	"""
-	# connect to central database registration table
-	auth_info = autoqm.utils.get_TCD_authentication_info()
-	tcdi = autoqm.connector.ThermoCentralDatabaseInterface(*auth_info)
-
-	tcd =  getattr(tcdi.client, 'thermoCentralDB')
-	saturated_ringcore_table = getattr(tcd, 'saturated_ringcore_table')
-
 	limit = 10
 	top_ringcores = list(saturated_ringcore_table.find({"status":"pending"}).sort([('count', -1)]).limit(limit))
 
