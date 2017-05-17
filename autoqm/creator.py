@@ -137,6 +137,14 @@ def create_jobs():
 		submission_script_path = os.path.join(spec_path, 'submit.sl')
 		if os.path.exists(inp_file) and os.path.exists(submission_script_path):
 			print('Input and submission files are created for {}.'.format(aug_inchi))
+			query = {"aug_inchi": aug_inchi}
+			update_field = {
+				'status': "job_created"
+			}
+
+			saturated_ringcore_table.update_one(query, {"$set": update_field}, True)
 		else:
 			print('Input and submission file generation fails: {}.'.format(aug_inchi))
+
+
 
