@@ -114,6 +114,8 @@ def create_jobs():
 
 	# generate qm jobs
 	data_path = config['QuantumMechanicJob']['data_path']
+	if not os.path.exists(data_path):
+		os.mkdir(data_path)
 	for target in targets:
 		smiles = str(target['SMILES_input'])
 		aug_inchi = str(target['aug_inchi'])
