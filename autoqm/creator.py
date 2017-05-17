@@ -129,3 +129,14 @@ def create_jobs():
 
 		# generate qm job submission file
 		generate_submission_script(spec_name, spec_path)
+
+		# check input and submission files 
+		# are created indeed and
+		# change the status to job_created
+		inp_file = os.path.join(spec_path, 'input.inp')
+		submission_script_path = os.path.join(spec_path, 'submit.sl')
+		if os.path.exists(inp_file) and os.path.exists(submission_script_path):
+			print('Input and submission files are created for {}.'.format(aug_inchi))
+		else:
+			print('Input and submission file generation fails: {}.'.format(aug_inchi))
+
