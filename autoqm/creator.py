@@ -55,7 +55,7 @@ def generate_input_from_smiles(smiles,
 	AllChem.UFFOptimizeMolecule(mol3d) 
 
 	# save mol files
-	mol_file_path = os.path.join(spec_path, '{0}.mol'.format(spec_name))
+	mol_file_path = os.path.join(spec_path, 'input.mol')
 	with open(mol_file_path, 'w') as mol_file:
 		mol_file.write(Chem.MolToMolBlock(mol3d))
 
@@ -72,12 +72,12 @@ def generate_input_from_smiles(smiles,
 	input_string += '\n'.join(xyz_coord)
 
 	# start writing with qm input head
-	qm_input_head_string = """%%chk=%s.chk
+	qm_input_head_string = """%%chk=check.chk
 %%mem=%s
 %%nproc=%s
-# opt freq %s""" % (spec_name, memory, procs_num, level_theory)
+# opt freq %s""" % (memory, procs_num, level_theory)
 
-	inp_file = os.path.join(spec_path, '{0}.inp'.format(spec_name))
+	inp_file = os.path.join(spec_path, 'input.inp')
 	
 	with open(inp_file, 'w+') as fout:
 		fout.write(qm_input_head_string)
@@ -104,7 +104,7 @@ def generate_submission_script(spec_name,
 	with open(submission_script_path, 'w+') as fout:
 		fout.write(qm_submission_head_string)
 		fout.write('\nmodule load {0}\n\n'.format(software))
-		fout.write('{0} '.format(software) + spec_name + '.inp' + '\n')
+		fout.write('{0} '.format(software) + 'input.inp' + '\n')
 
 def create_jobs():
 
