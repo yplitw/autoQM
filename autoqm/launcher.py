@@ -63,12 +63,22 @@ def launch_jobs():
 		os.chdir(spec_path)
 
 		# 3. launch them with "sbatch submit.sl > job_id.txt"
-		commands = ['sbatch', 'submit.sl', '>', 'job_id.txt']
+		# maybe I should create a launch.sh which has command
+		# sbatch submit.sl > job_id.txt
+		launch_script = os.path.join(spec_path, 'launch.sh')
+		with open(launch_script, 'w') as f_in:
+			f_in.write('sbatch submit.sl > job_id.txt')
+		
+		commands = ['bash', launch_script]
 		subprocess.Popen(commands)
 
 		# 4. get job id from txt "Submitted batch job 5022607"
 		job_id_file = os.path.join(spec_path, 'job_id.txt')
-		# job_id = re.sub('[A-Za-z\s]*', '', "Submitted batch job 5022607")
-
+		with open(job_id_file, 'r') as f_out:
+			for line in f_out:
+				if line and "Submitted batch job" in line:
+					job_id = re.sub('[A-Za-z\s]*', '', "Submitted batch job 5022607")
+					print("job id is {0}".format(job_id))
+		
 	# 5. update status "job_launched"
 
