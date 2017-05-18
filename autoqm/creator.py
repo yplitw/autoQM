@@ -6,13 +6,7 @@ from rdkit.Chem import AllChem
 from rmgpy.molecule import Molecule
 
 import autoqm.utils
-import autoqm.connector
-
-# connect to central database registration table
-auth_info = autoqm.utils.get_TCD_authentication_info()
-tcdi = autoqm.connector.ThermoCentralDatabaseInterface(*auth_info)
-tcd =  getattr(tcdi.client, 'thermoCentralDB')
-saturated_ringcore_table = getattr(tcd, 'saturated_ringcore_table')
+from autoqm.connector import saturated_ringcore_table
 
 def select_run_target():
 	"""

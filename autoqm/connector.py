@@ -1,4 +1,6 @@
 
+import autoqm.utils
+
 class ThermoCentralDatabaseInterface(object):
     """
     A class for interfacing with thermo central database.
@@ -30,3 +32,9 @@ class ThermoCentralDatabaseInterface(object):
                 pymongo.errors.OperationFailure):
             print("\nConnection failure to Thermo Central Database...")
             return None
+
+# connect to central database registration table
+auth_info = autoqm.utils.get_TCD_authentication_info()
+tcdi = ThermoCentralDatabaseInterface(*auth_info)
+tcd =  getattr(tcdi.client, 'thermoCentralDB')
+saturated_ringcore_table = getattr(tcd, 'saturated_ringcore_table')
