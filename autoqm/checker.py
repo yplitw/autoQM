@@ -66,3 +66,38 @@ def check_slurm_status(job_id):
 				return "job_running"
 			else:
 				return "job_launched"
+
+def check_content_status(spec_path):
+	"""
+	This method checks the content (log file) 
+	for an off_queue job.
+
+	Returns job_aborted or job_failed_convergence or 
+	job_failed_isomorphism or job_success
+
+	Note: when checking convergence, this method assumes
+	it's a gaussian opt freq calculation, it will check if there's
+	two "Normal termination" in the log file.
+	"""
+	log_path = os.path.join(spec_path, 'input.log')
+	if not os.path.exists(spec_path):
+		return "job_aborted"
+
+	# check job convergence
+	commands = ['grep', 'Normal', log_path]
+	process = subprocess.Popen(commands,
+								stdout=subprocess.PIPE,
+								stderr=subprocess.PIPE)
+	stdout, stderr = process.communicate()
+
+	normal_termination_count = 0
+	for stdout_line in stdout.splitlines():
+		if "Normal terminaton" in stdout_line:
+			normal_termination_count += 1
+
+	if normal_termination_count < 2:
+		return "job_failed_convergence"
+
+	# check job isomorphism
+
+
