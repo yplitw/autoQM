@@ -101,3 +101,37 @@ def check_content_status(spec_path):
 	# check job isomorphism
 
 
+def check_jobs():
+	"""
+	This method checks job with following steps:
+	1. select jobs to check
+	2. check the job slurm_status, e.g., scontrol show jobid 5037088
+	3. check job content
+	4. get new status
+	5. update with new status
+	"""
+	# 1. select jobs to check
+	targets = select_check_target()
+
+	# 2. check the job slurm-status
+	for target in targets[:1]:
+		job_id = str(target['job_id']).strip()
+		slurm_status = check_slurm_status(job_id)
+		if slurm_status == "off_queue":
+			# check job content
+			aug_inchi = str(target['aug_inchi'])
+			spec_name = aug_inchi.replace('/', '_slash_')
+			spec_path = os.path.join(data_path, spec_name)
+			content_status = check_content_status(spec_path)
+		else:
+			# check with original status which
+			# should be job_launched or job_running
+			# if any difference update
+			orig_status = str(target['status'])
+			if orig_status != slurm_status:
+				query = {"aug_inchi": aug_inchi}
+				update_field = {
+						'status': slurm_status
+				}
+
+				saturated_ringcore_table.update_one(query, {"$set": update_field}, True)
