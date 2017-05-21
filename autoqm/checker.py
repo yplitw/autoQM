@@ -126,8 +126,7 @@ def check_jobs():
 	1. select jobs to check
 	2. check the job slurm_status, e.g., scontrol show jobid 5037088
 	3. check job content
-	4. get new status
-	5. update with new status
+	4s. update with new status
 	"""
 	# 1. select jobs to check
 	targets = select_check_target()
@@ -137,14 +136,15 @@ def check_jobs():
 	for target in targets:
 		aug_inchi = str(target['aug_inchi'])
 		job_id = str(target['job_id']).strip()
+		# 2. check the job slurm_status
 		new_status = check_slurm_status(job_id)
 		if new_status == "off_queue":
-			# check job content
+			# 3. check job content
 			new_status = check_content_status(data_path, aug_inchi)
 		
-		# check with original status which
+		# 4. check with original status which
 		# should be job_launched or job_running
-		# if any difference update
+		# if any difference update status
 		orig_status = str(target['status'])
 		if orig_status != new_status:
 			query = {"aug_inchi": aug_inchi}
