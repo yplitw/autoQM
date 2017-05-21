@@ -67,7 +67,7 @@ def launch_jobs():
 		output = subprocess.check_output(commands)
 
 		# 4. get job id from output, e.g., "Submitted batch job 5022607"
-		job_id = output.replace('Submitted batch job ', '')
+		job_id = output.replace('Submitted batch job ', '').strip()
 		print("Job id for {0} is {1}.".format(aug_inchi, job_id))
 
 		# 5. update status "job_launched"
