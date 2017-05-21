@@ -7,3 +7,6 @@ dependencies:
   - pymongo
   - jupyter
   - rdkit >=2015.09.2
+  - openbabel
+  - quantities
+  - scipy
