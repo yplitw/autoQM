@@ -46,7 +46,7 @@ def launch_jobs():
 	This method launches job with following steps:
 	1. select jobs to launch
 	2. go to each job folder
-	3. launch them with "sbatch submit.sl > job_id.txt"
+	3. launch them with "sbatch submit.sl"
 	4. get job id
 	5. update status "job_launched"
 	"""
@@ -62,23 +62,20 @@ def launch_jobs():
 
 		os.chdir(spec_path)
 
-		# 3. launch them with "sbatch submit.sl > job_id.txt"
-		# maybe I should create a launch.sh which has command
-		# sbatch submit.sl > job_id.txt
-		launch_script = os.path.join(spec_path, 'launch.sh')
-		with open(launch_script, 'w') as f_in:
-			f_in.write('sbatch submit.sl > job_id.txt')
-		
-		commands = ['bash', launch_script]
-		subprocess.Popen(commands)
+		# 3. launch them with "sbatch submit.sl"
+		commands = ['sbatch', 'submit.sl']
+		output = subprocess.check_output(commands)
 
-		# 4. get job id from txt "Submitted batch job 5022607"
-		job_id_file = os.path.join(spec_path, 'job_id.txt')
-		with open(job_id_file, 'r') as f_out:
-			for line in f_out:
-				if line and "Submitted batch job" in line:
-					job_id = re.sub('[A-Za-z\s]*', '', "Submitted batch job 5022607")
-					print("job id is {0}".format(job_id))
-		
-	# 5. update status "job_launched"
+		# 4. get job id from output, e.g., "Submitted batch job 5022607"
+		job_id = output.replace('Submitted batch job ', '')
+		print("Job id for {0} is {1}.".format(aug_inchi, job_id))
+
+		# 5. update status "job_launched"
+		query = {"aug_inchi": aug_inchi}
+		update_field = {
+				'job_id': job_id,
+				'status': "job_launched"
+		}
+
+		saturated_ringcore_table.update_one(query, {"$set": update_field}, True)
 
