@@ -40,3 +40,29 @@ def select_check_target():
 	targets = list(saturated_ringcore_table.find(query))
 
 	return targets
+
+def check_slurm_status(job_id):
+	"""
+	This method checks slurm status of a job given job_id
+
+	Returns off_queue or job_launched or job_running
+	"""
+
+	commands = ['scontrol', 'show', 'jobid', job_id]
+	process = subprocess.Popen(commands,
+								stdout=subprocess.PIPE,
+								stderr=subprocess.PIPE)
+	stdout, stderr = process.communicate()
+
+	if "Invalid job id specified" in stderr:
+		return "off_queue"
+
+	assert "JobId={0}".format(job_id) in stdout, 'Slurm cannot show details for job_id {0}'.format(job_id)
+	for stdout_line in stdout.splitlines():
+		if "JobState=" in stdout_line:
+			tokens = [token.strip() for token in stdout_line.split() if "JobState=" in token]
+			status = tokens[0].replace('JobState=', '').lower()
+			if status == "running":
+				return "job_running"
+			else:
+				return "job_launched"
