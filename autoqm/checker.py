@@ -19,3 +19,24 @@
 #		else:   still job_launched 
 
 # update status accordingly
+import os
+import subprocess
+
+from autoqm.connector import saturated_ringcore_table
+
+def select_check_target():
+	"""
+	This method is to inform job checker which targets 
+	to check, which need meet one requirement:
+	1. status is job_launched or job_running
+
+	Returns a list of targe
+	"""
+	query = {"status":
+				{ "$in": 
+					["job_launched", "job_running"] 
+				}
+			}
+	targets = list(saturated_ringcore_table.find(query))
+
+	return targets
