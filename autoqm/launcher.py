@@ -13,7 +13,7 @@ from autoqm.connector import saturated_ringcore_table
 
 config = autoqm.utils.read_config()
 
-def select_launch_target():
+def select_launch_target(limit=100):
 	"""
 	This method is to inform job launcher which targets 
 	to launch, which need meet two requirements:
@@ -22,7 +22,6 @@ def select_launch_target():
 
 	Returns a list of targets with necessary meta data
 	"""
-	limit = 10
 	top_targets = list(saturated_ringcore_table.find({"status":"job_created"}).sort([('count', -1)]).limit(limit))
 
 	selected_targets = []
@@ -45,7 +44,7 @@ def select_launch_target():
 
 	return selected_targets
 
-def launch_jobs():
+def launch_jobs(limit):
 	"""
 	This method launches job with following steps:
 	1. select jobs to launch
@@ -55,7 +54,7 @@ def launch_jobs():
 	5. update status "job_launched"
 	"""
 	# 1. select jobs to launch
-	targets = select_launch_target()
+	targets = select_launch_target(limit)
 
 	# 2. go to each job folder
 	data_path = config['QuantumMechanicJob']['data_path']
@@ -68,10 +67,18 @@ def launch_jobs():
 
 		# 3. launch them with "sbatch submit.sl"
 		commands = ['sbatch', 'submit.sl']
-		output = subprocess.check_output(commands)
+		process = subprocess.Popen(commands,
+								stdout=subprocess.PIPE,
+								stderr=subprocess.PIPE)
 
-		# 4. get job id from output, e.g., "Submitted batch job 5022607"
-		job_id = output.replace('Submitted batch job ', '').strip()
+		stdout, stderr = process.communicate()
+
+		if stderr:
+			print(stderr)
+			return
+
+		# 4. get job id from stdout, e.g., "Submitted batch job 5022607"
+		job_id = stdout.replace('Submitted batch job ', '').strip()
 		print("Job id for {0} is {1}.".format(aug_inchi, job_id))
 
 		# 5. update status "job_launched"
@@ -82,4 +89,6 @@ def launch_jobs():
 		}
 
 		saturated_ringcore_table.update_one(query, {"$set": update_field}, True)
+
+launch_jobs(100)
 

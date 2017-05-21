@@ -8,14 +8,13 @@ from rmgpy.molecule import Molecule
 import autoqm.utils
 from autoqm.connector import saturated_ringcore_table
 
-def select_run_target():
+def select_run_target(limit=100):
 	"""
 	This method is to inform job creator which targets 
 	to run.
 
 	Returns a list of targets with necessary meta data
 	"""
-	limit = 10
 	top_ringcores = list(saturated_ringcore_table.find({"status":"pending"}).sort([('count', -1)]).limit(limit))
 
 	return top_ringcores
@@ -99,11 +98,11 @@ def generate_submission_script(spec_name,
 		fout.write('\nmodule load {0}\n\n'.format(software))
 		fout.write('{0} '.format(software) + 'input.inp' + '\n')
 
-def create_jobs():
+def create_jobs(limit):
 
 	config = autoqm.utils.read_config()
 	# select target to run
-	targets = select_run_target()
+	targets = select_run_target(limit)
 
 	# generate qm jobs
 	data_path = config['QuantumMechanicJob']['data_path']
@@ -140,5 +139,5 @@ def create_jobs():
 		else:
 			print('Input and submission file generation fails: {}.'.format(aug_inchi))
 
-
+create_jobs(100)
 
