@@ -36,6 +36,10 @@ def select_launch_target():
 		submission_script_path = os.path.join(spec_path, 'submit.sl')
 		if os.path.exists(inp_file) and os.path.exists(submission_script_path):
 			selected_targets.append(target)
+		else:
+			print("Warning: {0} has status job_created, but no input files found.".format(aug_inchi))
+			print("If the job input is created by this current worker, it should be fine.")
+			print("Otherwise, please check if there's issues with autoQM job creator.")
 
 	print('Selected {0} targets to launch.'.format(len(selected_targets)))
 
