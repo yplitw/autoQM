@@ -20,9 +20,16 @@
 
 # update status accordingly
 import os
+import pybel
 import subprocess
 
+from rmgpy.molecule import Molecule
+from rmgpy.species import Species
+
+import autoqm.utils
 from autoqm.connector import saturated_ringcore_table
+
+config = autoqm.utils.read_config()
 
 def select_check_target():
 	"""
@@ -67,7 +74,7 @@ def check_slurm_status(job_id):
 			else:
 				return "job_launched"
 
-def check_content_status(spec_path):
+def check_content_status(data_path, aug_inchi):
 	"""
 	This method checks the content (log file) 
 	for an off_queue job.
@@ -79,8 +86,9 @@ def check_content_status(spec_path):
 	it's a gaussian opt freq calculation, it will check if there's
 	two "Normal termination" in the log file.
 	"""
-	log_path = os.path.join(spec_path, 'input.log')
-	if not os.path.exists(spec_path):
+	spec_name = aug_inchi.replace('/', '_slash_')
+	log_path = os.path.join(data_path, spec_name, 'input.log')
+	if not os.path.exists(log_path):
 		return "job_aborted"
 
 	# check job convergence
@@ -92,14 +100,25 @@ def check_content_status(spec_path):
 
 	normal_termination_count = 0
 	for stdout_line in stdout.splitlines():
-		if "Normal terminaton" in stdout_line:
+		if "Normal termination" in stdout_line:
 			normal_termination_count += 1
 
 	if normal_termination_count < 2:
 		return "job_failed_convergence"
 
 	# check job isomorphism
+	bel_mol_after = pybel.readfile("g09", log_path).next()
+	smi_after = bel_mol_after.write(format='smi').split('\t')[0]
+	rmg_mol_after = Molecule().fromSMILES(smi_after)
 
+	rmg_mol_before = Molecule().fromAugmentedInChI(aug_inchi)
+	rmg_spec_before = Species(molecule=[rmg_mol_before])
+	rmg_spec_before.generateResonanceIsomers()
+
+	if not rmg_spec_before.isIsomorphic(rmg_mol_after):
+		return "job_failed_isomorphism"
+	else:
+		return "job_success"
 
 def check_jobs():
 	"""
@@ -114,24 +133,25 @@ def check_jobs():
 	targets = select_check_target()
 
 	# 2. check the job slurm-status
-	for target in targets[:1]:
+	data_path = config['QuantumMechanicJob']['data_path']
+	for target in targets:
+		aug_inchi = str(target['aug_inchi'])
 		job_id = str(target['job_id']).strip()
-		slurm_status = check_slurm_status(job_id)
-		if slurm_status == "off_queue":
+		new_status = check_slurm_status(job_id)
+		if new_status == "off_queue":
 			# check job content
-			aug_inchi = str(target['aug_inchi'])
-			spec_name = aug_inchi.replace('/', '_slash_')
-			spec_path = os.path.join(data_path, spec_name)
-			content_status = check_content_status(spec_path)
-		else:
-			# check with original status which
-			# should be job_launched or job_running
-			# if any difference update
-			orig_status = str(target['status'])
-			if orig_status != slurm_status:
-				query = {"aug_inchi": aug_inchi}
-				update_field = {
-						'status': slurm_status
-				}
+			new_status = check_content_status(data_path, aug_inchi)
+		
+		# check with original status which
+		# should be job_launched or job_running
+		# if any difference update
+		orig_status = str(target['status'])
+		if orig_status != new_status:
+			query = {"aug_inchi": aug_inchi}
+			update_field = {
+					'status': new_status
+			}
 
-				saturated_ringcore_table.update_one(query, {"$set": update_field}, True)
+			saturated_ringcore_table.update_one(query, {"$set": update_field}, True)
+
+check_jobs()
