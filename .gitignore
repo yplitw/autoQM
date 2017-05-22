@@ -13,3 +13,6 @@
 
 # Data folder
 jobs/*
+
+# Cron logs
+crontabs/*.log
