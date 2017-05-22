@@ -81,7 +81,7 @@ def generate_submission_script(spec_name,
 								spec_path,
 								partition='regular', 
 								nodes_num='1', 
-								walltime='10:00:00', 
+								walltime='3:00:00', 
 								software='g09'):
 	
 	qm_submission_head_string = """#!/bin/bash -l
