@@ -82,9 +82,9 @@ def generate_input_from_smiles(smiles,
 
 def generate_submission_script(spec_name,
 								spec_path,
-								partition='regular', 
+								partition, 
 								nodes_num='1', 
-								walltime='3:00:00', 
+								walltime='2:00:00', 
 								software='g09'):
 	
 	qm_submission_head_string = """#!/bin/bash -l
@@ -93,7 +93,7 @@ def generate_submission_script(spec_name,
 #SBATCH -t %s
 #SBATCH -J %s
 #SBATCH -C haswell
-#SBATCH -o out.log\n""" % ('regular', nodes_num, walltime, spec_name)
+#SBATCH -o out.log\n""" % (partition, nodes_num, walltime, spec_name)
 	
 	submission_script_path = os.path.join(spec_path, 'submit.sl')
 	with open(submission_script_path, 'w+') as fout:
@@ -101,7 +101,7 @@ def generate_submission_script(spec_name,
 		fout.write('\nmodule load {0}\n\n'.format(software))
 		fout.write('{0} '.format(software) + 'input.inp' + '\n')
 
-def create_jobs(limit):
+def create_jobs(limit, partition):
 
 	config = autoqm.utils.read_config()
 	# select target to run
@@ -124,7 +124,7 @@ def create_jobs(limit):
 		generate_input_from_smiles(smiles, spec_name, spec_path)
 
 		# generate qm job submission file
-		generate_submission_script(spec_name, spec_path)
+		generate_submission_script(spec_name, spec_path, partition)
 
 		# check input and submission files 
 		# are created indeed and
@@ -142,5 +142,6 @@ def create_jobs(limit):
 		else:
 			print('Input and submission file generation fails: {}.'.format(aug_inchi))
 
-create_jobs(100)
+create_jobs(limit=200, partition='regular')
+create_jobs(limit=200, partition='regularx')
 
