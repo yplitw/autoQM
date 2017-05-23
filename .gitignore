@@ -13,6 +13,7 @@
 
 # Data folder
 jobs/*
+scratch_jobs/*
 
 # Cron logs
 crontabs/*.log
