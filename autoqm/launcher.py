@@ -75,7 +75,7 @@ def launch_jobs(limit):
 
 		if stderr:
 			print(stderr)
-			return
+			continue
 
 		# 4. get job id from stdout, e.g., "Submitted batch job 5022607"
 		job_id = stdout.replace('Submitted batch job ', '').strip()
@@ -90,5 +90,5 @@ def launch_jobs(limit):
 
 		saturated_ringcore_table.update_one(query, {"$set": update_field}, True)
 
-launch_jobs(100)
+launch_jobs(400)
 
