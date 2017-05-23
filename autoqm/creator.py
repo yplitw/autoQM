@@ -15,7 +15,10 @@ def select_run_target(limit=100):
 
 	Returns a list of targets with necessary meta data
 	"""
-	top_ringcores = list(saturated_ringcore_table.find({"status":"pending"}).sort([('count', -1)]).limit(limit))
+	query = {"status":"pending"}
+	sort_key = [('count', -1), ('_id', -1)]
+
+	top_ringcores = list(saturated_ringcore_table.find(query).sort(sort_key).limit(limit))
 
 	return top_ringcores
 
