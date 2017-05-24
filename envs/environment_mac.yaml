@@ -10,3 +10,4 @@ dependencies:
   - openbabel
   - quantities
   - scipy
+  - lpsolve55
