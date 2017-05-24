@@ -10,6 +10,21 @@ from autoqm.connector import saturated_ringcore_table
 
 config = autoqm.utils.read_config()
 
+def should_create_more_jobs(threshold=150):
+	"""
+	This method is to inform job creator whether should
+	to create more jobs by comparing the current number
+	of jobs created with the set threshold.
+
+	Returns True (should create more jobs) or False
+	(should hold for now)
+	"""
+	query = {"status":"job_created"}
+
+	num_job_created = saturated_ringcore_table.find(query).count()
+
+	return (num_job_created < threshold)
+
 def select_run_target(limit=100):
 	"""
 	This method is to inform job creator which targets 
@@ -104,6 +119,9 @@ def generate_submission_script(spec_name,
 		fout.write('{0} '.format(software) + 'input.inp' + '\n')
 
 def create_jobs(limit, partition):
+
+	if not should_create_more_jobs(threshold=810):
+		return
 
 	# select target to run
 	targets = select_run_target(limit)
