@@ -90,5 +90,6 @@ def launch_jobs(limit):
 
 		saturated_ringcore_table.update_one(query, {"$set": update_field}, True)
 
-launch_jobs(400)
+limit = int(config['QuantumMechanicJob']['limit_per_launch'])
+launch_jobs(limit)
 

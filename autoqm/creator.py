@@ -143,6 +143,6 @@ def create_jobs(limit, partition):
 		else:
 			print('Input and submission file generation fails: {}.'.format(aug_inchi))
 
-create_jobs(limit=200, partition='regular')
-create_jobs(limit=200, partition='regularx')
+limit = int(config['QuantumMechanicJob']['limit_per_creation'])
+create_jobs(limit=limit, partition='regularx')
 
