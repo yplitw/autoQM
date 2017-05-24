@@ -8,6 +8,8 @@ from rmgpy.molecule import Molecule
 import autoqm.utils
 from autoqm.connector import saturated_ringcore_table
 
+config = autoqm.utils.read_config()
+
 def select_run_target(limit=100):
 	"""
 	This method is to inform job creator which targets 
@@ -103,7 +105,6 @@ def generate_submission_script(spec_name,
 
 def create_jobs(limit, partition):
 
-	config = autoqm.utils.read_config()
 	# select target to run
 	targets = select_run_target(limit)
 
