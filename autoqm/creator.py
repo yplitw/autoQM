@@ -120,7 +120,7 @@ def generate_submission_script(spec_name,
 
 def create_jobs(limit, partition):
 
-	if not should_create_more_jobs(threshold=810):
+	if not should_create_more_jobs(threshold=200):
 		return
 
 	# select target to run
