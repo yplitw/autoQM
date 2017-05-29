@@ -44,7 +44,7 @@ def get_level_of_theory(inp_path):
 		else:
 			raise Exception('Can not find level of theory in {0}.'.format(inp_path))
 
-def getTestingTCDAuthenticationInfo():
+def get_testing_TCD_authentication_info():
 
     try:
         host = os.environ['TCD_HOST']

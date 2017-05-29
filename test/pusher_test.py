@@ -7,7 +7,7 @@ from autoqm.connector import ThermoCentralDatabaseInterface
 
 def connectToTestCentralDatabase():
 
-    host, port, username, password = autoqm.utils.getTestingTCDAuthenticationInfo()
+    host, port, username, password = autoqm.utils.get_testing_TCD_authentication_info()
 
     tcdi = ThermoCentralDatabaseInterface(host, port, username, password)
     return tcdi
