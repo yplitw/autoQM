@@ -5,7 +5,10 @@ import autoqm.utils
 
 class TestAuthentication(unittest.TestCase):
 
-	cfg_path = os.path.join(os.path.dirname(__file__), 'data', 'test_config.cfg')
+	cfg_path = os.path.join(os.path.dirname(__file__), 
+							'data', 
+							'utils_data',
+							'test_config.cfg')
 
 	def test_read_config(self):
 
