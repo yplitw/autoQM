@@ -9,6 +9,7 @@
 
 # Compiled Python modules
 *.pyc
+ipynb/*
 *.ipynb_checkpoints
 
 # Data folder
@@ -17,3 +18,6 @@ scratch_jobs/*
 
 # Cron logs
 crontabs/*.log
+
+# Notes
+notes/*
