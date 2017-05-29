@@ -33,5 +33,18 @@ class TestAuthentication(unittest.TestCase):
 		self.assertEqual(port, 123)
 		self.assertEqual(username, 'me')
 		self.assertEqual(password, 'secret')
+
+class TestQuantumFileParsing(unittest.TestCase):
+
+	def test_get_level_of_theory(self):
+
+		inp_path = os.path.join(os.path.dirname(__file__), 
+							'data', 
+							'utils_data',
+							'input.inp')
+
+		level_of_theory = autoqm.utils.get_level_of_theory(inp_path)
+
+		self.assertEqual(level_of_theory, 'um062x/cc-pvtz')
 	
 		
