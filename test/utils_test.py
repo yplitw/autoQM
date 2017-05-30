@@ -1,6 +1,8 @@
 import os
 import unittest
 
+from rmgpy.species import Species
+
 import autoqm.utils 
 
 class TestAuthentication(unittest.TestCase):
@@ -46,5 +48,41 @@ class TestQuantumFileParsing(unittest.TestCase):
 		level_of_theory = autoqm.utils.get_level_of_theory(inp_path)
 
 		self.assertEqual(level_of_theory, 'um062x/cc-pvtz')
+
+class TestRmgSpecies(unittest.TestCase):
+
+	def test_get_atoms_and_bonds_dicts1(self):
+
+		spec = Species().fromSMILES('C1=CC2CC2=C1')
+		atoms, bonds = autoqm.utils.get_atoms_and_bonds_dicts(spec)
+
+		self.assertIn('H', atoms.keys())
+		self.assertIn('C', atoms.keys())
+		self.assertIn('C=C', bonds.keys())
+		self.assertIn('C-C', bonds.keys())
+		self.assertIn('C-H', bonds.keys())
+
+		self.assertEqual(6, atoms['H'])
+		self.assertEqual(6, atoms['C'])
+		self.assertEqual(2, bonds['C=C'])
+		self.assertEqual(5, bonds['C-C'])
+		self.assertEqual(6, bonds['C-H'])
+
+	def test_get_atoms_and_bonds_dicts2(self):
+
+		spec = Species().fromSMILES('C1=CC2CCC=21')
+		atoms, bonds = autoqm.utils.get_atoms_and_bonds_dicts(spec)
+
+		self.assertIn('H', atoms.keys())
+		self.assertIn('C', atoms.keys())
+		self.assertIn('C=C', bonds.keys())
+		self.assertIn('C-C', bonds.keys())
+		self.assertIn('C-H', bonds.keys())
+
+		self.assertEqual(6, atoms['H'])
+		self.assertEqual(6, atoms['C'])
+		self.assertEqual(2, bonds['C=C'])
+		self.assertEqual(5, bonds['C-C'])
+		self.assertEqual(6, bonds['C-H'])
 	
 		

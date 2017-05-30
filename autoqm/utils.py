@@ -57,3 +57,40 @@ def get_testing_TCD_authentication_info():
 
     return host, port, username, password
 
+def get_atoms_and_bonds_dicts(spec):
+	
+	molecule = spec.molecule[0]
+	atoms = {}
+	for atom in molecule.vertices:
+		if atom.symbol not in atoms:
+			atoms[atom.symbol] = 1
+		else:
+			atoms[atom.symbol] += 1
+	
+	# collect bonds in molecule
+	bond_list = []
+	for atom1 in molecule.vertices:
+		for atom2, bond in molecule.getBonds(atom1).iteritems():
+			bond_list.append(bond)
+	bond_set = set(bond_list)
+	
+	# generate bonds dict
+	bonds = {}
+	for bond in bond_set:
+		bond_key = ''
+		if bond.isSingle():
+			bond_key = bond.atom1.symbol + '-' + bond.atom2.symbol
+		elif bond.isDouble():
+			bond_key = bond.atom1.symbol + '=' + bond.atom2.symbol
+		elif bond.isTriple():
+			bond_key = bond.atom1.symbol + '#' + bond.atom2.symbol
+		if bond_key == '':
+			print('bond order of {0} cannot be parsed!'.format(bond))
+		else:
+			if bond_key not in bonds:
+				bonds[bond_key] = 1
+			else:
+				bonds[bond_key] += 1
+
+	return atoms, bonds
+
