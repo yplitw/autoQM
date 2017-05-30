@@ -1,4 +1,5 @@
 import os
+import shutil
 import unittest
 
 from rmgpy.species import Species
@@ -84,5 +85,29 @@ class TestRmgSpecies(unittest.TestCase):
 		self.assertEqual(2, bonds['C=C'])
 		self.assertEqual(5, bonds['C-C'])
 		self.assertEqual(6, bonds['C-H'])
+
+class TestCantherm(unittest.TestCase):
+
+	def test_run_cantherm(self):
+
+		spec_name = 'test_species'
+		spec_path = os.path.join(os.path.dirname(__file__), 
+								'data', 
+								'utils_data',
+								spec_name)
+		model_chemistry = 'um062x/cc-pvtz'
+		smiles = 'C1=CC2CCC=21'
+		thermo = autoqm.utils.run_cantherm(spec_path, model_chemistry, smiles)
+		self.assertAlmostEqual(thermo.H298.value_si/1000, 655.65, 1)
+		self.assertAlmostEqual(thermo.S298.value_si, 303.89, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[0], 92.69, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[1], 120.15, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[2], 143.53, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[3], 162.47, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[4], 192.04, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[5], 213.18, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[6], 242.57, 1)
+
+		shutil.rmtree(os.path.join(spec_path, 'cantherm'))
 	
 		

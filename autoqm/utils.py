@@ -1,5 +1,10 @@
 import os
+import shutil
 import ConfigParser
+
+from rmgpy.species import Species
+from rmgpy.cantherm.main import CanTherm
+from rmgpy.cantherm.thermo import ThermoJob
 
 def read_config(cfg_path='default'):
 	'''This function reads a configuration file and returns an equivalent dictionary'''
@@ -94,3 +99,88 @@ def get_atoms_and_bonds_dicts(spec):
 
 	return atoms, bonds
 
+def create_cantherm_input(cantherm_folder, model_chemistry):
+	
+	cantherm_input_string = """#!/usr/bin/env python
+# encoding: utf-8
+
+modelChemistry = "%s"
+frequencyScaleFactor = 0.99
+useHinderedRotors = False
+useBondCorrections = True
+
+species('species', 'species.py')
+
+statmech('species')
+thermo('species', 'NASA')
+""" % (model_chemistry)
+
+	input_file = os.path.join(cantherm_folder, 'input.py')
+	with open(input_file, 'w+') as f_in:
+		f_in.write(cantherm_input_string)
+	
+
+def create_cantherm_species_file(cantherm_folder, model_chemistry, smiles):
+
+	spec = Species().fromSMILES(smiles)
+	atoms, bonds = get_atoms_and_bonds_dicts(spec)
+
+	species_file_string = """#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+atoms = %s
+
+bonds = %s
+
+linear = False
+
+externalSymmetry = 1
+
+spinMultiplicity = 1
+
+opticalIsomers = 1
+
+energy = {
+	'%s': GaussianLog('input.log'),
+}
+
+geometry = GaussianLog('input.log')
+
+frequencies = GaussianLog('input.log')
+
+rotors = []
+""" % (atoms, bonds, model_chemistry)
+	
+	species_file = os.path.join(cantherm_folder,'species.py')
+	with open(species_file, 'w+') as f_in:
+		f_in.write(species_file_string)
+
+def run_cantherm(spec_path, model_chemistry, smiles):
+
+	# create folder for cantherm calculation
+	cantherm_folder = os.path.join(spec_path, 'cantherm')
+	if not os.path.exists(cantherm_folder):
+		os.mkdir(cantherm_folder)
+
+	# copy log file to cantherm folder
+	log_file = os.path.join(spec_path, 'input.log')
+	shutil.copy(log_file, os.path.join(cantherm_folder, 'input.log'))
+
+	# create cantherm input and species files
+	create_cantherm_input(cantherm_folder, model_chemistry)
+	create_cantherm_species_file(cantherm_folder, model_chemistry, smiles)
+
+	# run cantherm
+	cantherm_input = os.path.join(cantherm_folder, 'input.py')
+	cantherm = CanTherm()
+	cantherm.inputFile = cantherm_input
+	cantherm.outputDirectory = cantherm_folder
+	cantherm.plot = False
+	cantherm.execute()
+
+	thermo = None
+	for job in cantherm.jobList:
+		if isinstance(job, ThermoJob):
+			thermo = job.species.thermo.toThermoData()
+
+	return thermo
