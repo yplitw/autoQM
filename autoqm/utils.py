@@ -81,14 +81,19 @@ def get_atoms_and_bonds_dicts(spec):
 	
 	# generate bonds dict
 	bonds = {}
+	atoms_order = ['C', 'N', 'S', 'O', 'H']
 	for bond in bond_set:
+		bond_atoms = [bond.atom1.symbol, bond.atom2.symbol]
+		if atoms_order.index(bond_atoms[0]) > atoms_order.index(bond_atoms[1]):
+			bond_atoms = [bond_atoms[1], bond_atoms[0]]
+		
 		bond_key = ''
 		if bond.isSingle():
-			bond_key = bond.atom1.symbol + '-' + bond.atom2.symbol
+			bond_key = '-'.join(bond_atoms)
 		elif bond.isDouble():
-			bond_key = bond.atom1.symbol + '=' + bond.atom2.symbol
+			bond_key = '='.join(bond_atoms)
 		elif bond.isTriple():
-			bond_key = bond.atom1.symbol + '#' + bond.atom2.symbol
+			bond_key = '#'.join(bond_atoms)
 		if bond_key == '':
 			print('bond order of {0} cannot be parsed!'.format(bond))
 		else:
