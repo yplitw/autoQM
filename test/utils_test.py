@@ -88,9 +88,9 @@ class TestRmgSpecies(unittest.TestCase):
 
 class TestCantherm(unittest.TestCase):
 
-	def test_run_cantherm(self):
+	def test_run_cantherm1(self):
 
-		spec_name = 'test_species'
+		spec_name = 'test_species1'
 		spec_path = os.path.join(os.path.dirname(__file__), 
 								'data', 
 								'utils_data',
@@ -107,6 +107,28 @@ class TestCantherm(unittest.TestCase):
 		self.assertAlmostEqual(thermo.Cpdata.value_si[4], 192.04, 1)
 		self.assertAlmostEqual(thermo.Cpdata.value_si[5], 213.18, 1)
 		self.assertAlmostEqual(thermo.Cpdata.value_si[6], 242.57, 1)
+
+		shutil.rmtree(os.path.join(spec_path, 'cantherm'))
+
+	def test_run_cantherm2(self):
+
+		spec_name = 'test_species2'
+		spec_path = os.path.join(os.path.dirname(__file__), 
+								'data', 
+								'utils_data',
+								spec_name)
+		model_chemistry = 'um062x/cc-pvtz'
+		smiles = 'C1=CC2C(C1)C1C=CCC21'
+		thermo = autoqm.utils.run_cantherm(spec_path, model_chemistry, smiles)
+		self.assertAlmostEqual(thermo.H298.value_si/1000/4.184, 87.69, 1)
+		self.assertAlmostEqual(thermo.S298.value_si/4.184, 84.77, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[0]/4.184, 35.01, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[1]/4.184, 48.22, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[2]/4.184, 59.70, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[3]/4.184, 69.04, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[4]/4.184, 83.45, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[5]/4.184, 93.75, 1)
+		self.assertAlmostEqual(thermo.Cpdata.value_si[6]/4.184, 108.02, 1)
 
 		shutil.rmtree(os.path.join(spec_path, 'cantherm'))
 	
