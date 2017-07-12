@@ -22,6 +22,8 @@ import time
 import shutil
 
 import autoqm.utils
+import autoqm.connector
+
 
 def select_push_target(registration_table,
 						results_table,
@@ -116,3 +118,23 @@ def push_jobs(registration_table, results_table, success_data_path):
 
 		results_table.insert_one(insert_entry)
 
+
+def run():
+	# get config info
+	config = autoqm.utils.read_config()
+
+	# connect to thermo central db
+	auth_info = autoqm.utils.get_TCD_authentication_info()
+	tcdi = autoqm.connector.ThermoCentralDatabaseInterface(*auth_info)
+	tcd =  getattr(tcdi.client, 'thermoCentralDB')
+
+	# get registration table and result table
+	# and specify success job data path
+	pusher_reg_table = getattr(tcd, 'saturated_ringcore_table')
+	pusher_res_table = getattr(tcd, 'saturated_ringcore_res_table')
+	success_data_path = os.path.join(config['QuantumMechanicJob']['scratch_data_path'],
+									'success')
+
+	push_jobs(pusher_reg_table, pusher_res_table, success_data_path)
+
+run()
