@@ -41,10 +41,14 @@ def get_level_of_theory(inp_path):
 
 	Currently it supports Gaussian inputs only.
 	"""
+	level_of_theory_dict = {
+		"um062x/cc-pvtz": "M06-2X/cc-pVTZ"
+	}
 	with open(inp_path, 'r') as f_in:
 		for line in f_in.readlines():
 			if '# opt freq ' in line:
-				level_of_theory = line.split(' ')[3].strip().lower()
+				level_of_theory_in_file = line.split(' ')[3].strip().lower()
+				level_of_theory = level_of_theory_dict[level_of_theory_in_file]
 				return level_of_theory
 		else:
 			raise Exception('Can not find level of theory in {0}.'.format(inp_path))
