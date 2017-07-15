@@ -3,15 +3,7 @@ import shutil
 import unittest
 
 import autoqm.pusher
-import autoqm.utils
-from autoqm.connector import ThermoCentralDatabaseInterface
-
-def connectToTestCentralDatabase():
-
-    host, port, username, password = autoqm.utils.get_testing_TCD_authentication_info()
-
-    tcdi = ThermoCentralDatabaseInterface(host, port, username, password)
-    return tcdi
+from autoqm.connector import connectToTestCentralDatabase
 
 class TestPusher(unittest.TestCase):
     """

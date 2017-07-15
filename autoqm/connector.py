@@ -33,6 +33,13 @@ class ThermoCentralDatabaseInterface(object):
             print("\nConnection failure to Thermo Central Database...")
             return None
 
+def connectToTestCentralDatabase():
+
+    host, port, username, password = autoqm.utils.get_testing_TCD_authentication_info()
+
+    tcdi = ThermoCentralDatabaseInterface(host, port, username, password)
+    return tcdi
+
 # connect to central database registration table
 auth_info = autoqm.utils.get_TCD_authentication_info()
 tcdi = ThermoCentralDatabaseInterface(*auth_info)
