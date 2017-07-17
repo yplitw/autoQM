@@ -11,3 +11,4 @@ dependencies:
   - quantities
   - scipy
   - lpsolve55
+  - matplotlib
