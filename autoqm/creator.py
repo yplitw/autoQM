@@ -140,7 +140,10 @@ def create_jobs(limit, partition):
 			os.mkdir(spec_path)
 
 		# generate qm job input file
-		generate_input_from_smiles(smiles, spec_name, spec_path)
+		try:
+			generate_input_from_smiles(smiles, spec_name, spec_path)
+		except RuntimeError:
+			print('RuntimeError when creating inputs for {}.'.format(smiles))
 
 		# generate qm job submission file
 		generate_submission_script(spec_name, spec_path, partition)
