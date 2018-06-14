@@ -7,7 +7,7 @@
 #    1.1 check job folder if input.log file is there
 #			Yes: job already finished
 #			No:  job is aborted before even calculation start: job_aborted
-#    1.2 if finished, check "Normal termination" key words should appear twice
+#    1.2 if finished, check "Thank you very much for using Q-Chem" key words should appear twice
 #			Yes: job is converged
 #			No:  job fails convergence (possibly need more wall-time): job_failed_convergence
 #    1.3 if converged, check isomorphism between input molecule and output molecule
@@ -84,7 +84,7 @@ def check_content_status(data_path, aug_inchi):
 
 	Note: when checking convergence, this method assumes
 	it's a gaussian opt freq calculation, it will check if there's
-	two "Normal termination" in the log file.
+	two "Thank you very much for using Q-Chem" in the log file.
 	"""
 	spec_name = aug_inchi.replace('/', '_slash_')
 	log_path = os.path.join(data_path, spec_name, 'input.log')
@@ -92,22 +92,26 @@ def check_content_status(data_path, aug_inchi):
 		return "job_aborted"
 
 	# check job convergence
-	commands = ['grep', 'Normal', log_path]
-	process = subprocess.Popen(commands,
-								stdout=subprocess.PIPE,
-								stderr=subprocess.PIPE)
-	stdout, stderr = process.communicate()
-
-	normal_termination_count = 0
-	for stdout_line in stdout.splitlines():
-		if "Normal termination" in stdout_line:
-			normal_termination_count += 1
+	# commands = ['grep', 'Normal', log_path]
+	# process = subprocess.Popen(commands,
+	# 							stdout=subprocess.PIPE,
+	# 							stderr=subprocess.PIPE)
+	# stdout, stderr = process.communicate()
+	# 
+	# normal_termination_count = 0
+	# for stdout_line in stdout.splitlines():
+	# 	if "Thank you" in stdout_line:
+	# 		normal_termination_count += 1
+	f = open(log_path)
+	contents = f.read()
+	f.close()
+	normal_termination_count = contents.count('Thank you')
 
 	if normal_termination_count < 2:
 		return "job_failed_convergence"
 
 	# check job isomorphism
-	bel_mol_after = pybel.readfile("g09", log_path).next()
+	bel_mol_after = pybel.readfile("qcout", log_path).next()
 	smi_after = bel_mol_after.write(format='smi').split('\t')[0]
 	rmg_mol_after = Molecule().fromSMILES(smi_after)
 

@@ -42,8 +42,8 @@ def select_run_target(limit=100):
 def generate_input_from_smiles(smiles, 
 								spec_name,
 								spec_path, 
-								memory='1500mb', 
-								procs_num='32', 
+								#memory='1500mb', 
+								#procs_num='32', 
 								level_theory='um062x/cc-pvtz'):
 	"""
 	This method writes quantum mechanics input file, given
@@ -52,7 +52,7 @@ def generate_input_from_smiles(smiles,
 	Currently only support Gaussian format.
 	"""
 	
-	input_string = ""
+	input_string = "$molecule\n"
 	# calculate charge and multiplicity
 	rmg_mol = Molecule().fromSMILES(smiles)
 	input_string += "{charge}   {mult}\n".format(charge=0, 
@@ -80,29 +80,40 @@ def generate_input_from_smiles(smiles,
 			if match:
 				xyz_coord.append("{0:8s} {1}".format(match.group(2), match.group(1)))
 
-	xyz_coord.append('')
 	input_string += '\n'.join(xyz_coord)
+	input_string += '\n$end\n\n'
 
 	# start writing with qm input head
-	qm_input_head_string = """%%chk=check.chk
-%%mem=%s
-%%nproc=%s
-# opt freq %s""" % (memory, procs_num, level_theory)
+	
+	opt_qm_input_head_string = """$rem
+jobtype %s
+exchange %s
+basis %s
+$end\n\n""" % tuple(['opt'] + level_theory.split('/'))
+
+	freq_qm_input_head_string = """$rem
+jobtype %s
+exchange %s
+basis %s
+$end\n\n""" % tuple(['freq'] + level_theory.split('/'))
 
 	inp_file = os.path.join(spec_path, 'input.inp')
 	
 	with open(inp_file, 'w+') as fout:
-		fout.write(qm_input_head_string)
-		fout.write('\n\n' + spec_name + '\n\n')
-		fout.writelines(input_string)
-		fout.write('\n')
+		fout.write('!%s\n\n' % spec_name)
+		fout.write(opt_qm_input_head_string)
+		fout.write(input_string)
+		fout.write('@@@\n\n')
+		fout.write(freq_qm_input_head_string)
+		fout.write('$molecule\nread\n$end\n')
+		
 
 def generate_submission_script(spec_name,
 								spec_path,
 								partition, 
 								nodes_num='1', 
 								walltime='2:00:00', 
-								software='g09'):
+								software='qchem'):
 	
 	qm_submission_head_string = """#!/bin/bash -l
 #SBATCH -p %s
@@ -110,13 +121,13 @@ def generate_submission_script(spec_name,
 #SBATCH -t %s
 #SBATCH -J %s
 #SBATCH -C haswell
-#SBATCH -o out.log\n""" % (partition, nodes_num, walltime, spec_name)
+#SBATCH -o input.log\n""" % (partition, nodes_num, walltime, spec_name)
 	
 	submission_script_path = os.path.join(spec_path, 'submit.sl')
 	with open(submission_script_path, 'w+') as fout:
 		fout.write(qm_submission_head_string)
 		fout.write('\nmodule load {0}\n\n'.format(software))
-		fout.write('{0} '.format(software) + 'input.inp' + '\n')
+		fout.write('{0} -slurm -nt {1} '.format(software, nodes_num) + 'input.inp' + '\n')
 
 def create_jobs(limit, partition):
 
@@ -167,4 +178,3 @@ def create_jobs(limit, partition):
 
 limit = int(config['QuantumMechanicJob']['limit_per_creation'])
 create_jobs(limit=limit, partition='regularx')
-

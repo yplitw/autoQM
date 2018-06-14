@@ -41,15 +41,19 @@ def get_level_of_theory(inp_path):
 
 	Currently it supports Gaussian inputs only.
 	"""
-	level_of_theory_dict = {
-		"um062x/cc-pvtz": "M06-2X/cc-pVTZ"
-	}
+#	level_of_theory_dict = {
+#		"um062x/cc-pvtz": "M06-2X/cc-pVTZ"
+#	}
+	exchange = None
+	basis = None
 	with open(inp_path, 'r') as f_in:
 		for line in f_in.readlines():
-			if '# opt freq ' in line:
-				level_of_theory_in_file = line.split(' ')[3].strip().lower()
-				level_of_theory = level_of_theory_dict[level_of_theory_in_file]
-				return level_of_theory
+			if 'exchange' in line:
+				exchange = line.split()[1].strip().lower()
+			elif 'basis' in line:
+				basis = line.split()[1].strip().lower()
+		if exchange is not None and basis is not None:
+			return exchange + '/' + basis
 		else:
 			raise Exception('Can not find level of theory in {0}.'.format(inp_path))
 
@@ -150,12 +154,12 @@ spinMultiplicity = 1
 opticalIsomers = 1
 
 energy = {
-	'%s': GaussianLog('input.log'),
+	'%s': QchemLog('input.log'),
 }
 
-geometry = GaussianLog('input.log')
+geometry = QchemLog('input.log')
 
-frequencies = GaussianLog('input.log')
+frequencies = QchemLog('input.log')
 
 rotors = []
 """ % (atoms, bonds, model_chemistry)
